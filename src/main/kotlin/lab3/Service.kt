@@ -5,8 +5,7 @@ class Service : ContactsService {
     override fun addContact(person: Person, contact: Contact) {
         if (allPersons.contains(person))
             allPersons[person]?.add(contact)
-        else
-        {
+        else {
             allPersons[person] = mutableListOf()
             allPersons[person]!!.add(contact)
         }
@@ -62,16 +61,6 @@ class Service : ContactsService {
         else
             emptyList()
     }
-
-    /*    override fun getPersonPhones(person: Person): List<Contact.Phone> {
-        return if (allPersons.contains(person))
-            if (allPersons[person]!!.filterIsInstance<Contact.Phone>().isNotEmpty())
-                allPersons[person]!!.filterIsInstance<Contact.Phone>()
-            else
-                emptyList()
-        else
-            emptyList()
-    }*/
 
     override fun getPersonEmails(person: Person): List<Contact.Email> {
         return if (allPersons.contains(person))

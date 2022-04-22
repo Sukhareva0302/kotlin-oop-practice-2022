@@ -13,19 +13,19 @@ sealed class Contact {
         }
     }
 
-    class Email(val emailAddress: String) : Contact(){
+    class Email(val emailAddress: String) : Contact() {
         override fun toString(): String {
             return "email: $emailAddress"
         }
     }
 
-    class Address(val city: String, val street: String, val building: Int, val apartment: Int) : Contact(){
+    class Address(val city: String, val street: String, val building: Int, val apartment: Int) : Contact() {
         override fun toString(): String {
             return "address: $city, $street, $building, $apartment"
         }
     }
 
-    class Link(val nameOfMedia: String, val url: String) : Contact(){
+    class Link(val nameOfMedia: String, val url: String) : Contact() {
         override fun toString(): String {
             return "name of media: $nameOfMedia, url: $url"
         }
