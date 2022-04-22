@@ -9,7 +9,6 @@ class Service : ContactsService {
             allPersons[person] = mutableListOf()
             allPersons[person]!!.add(contact)
         }
-
     }
 
     override fun removeContact(person: Person, contact: Contact) {
