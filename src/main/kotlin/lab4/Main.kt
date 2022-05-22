@@ -1,6 +1,6 @@
 package lab4
 
 fun main() {
-    val maze = Model()
+    val maze = readMap()
     Controller(maze)
 }

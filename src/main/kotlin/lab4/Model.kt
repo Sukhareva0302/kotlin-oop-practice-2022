@@ -2,7 +2,6 @@ package lab4
 
 import lab4.Cell.*
 import lab4.State.*
-import java.io.File
 
 enum class State {
     GAME_NOT_FINISHED,
@@ -18,15 +17,22 @@ enum class Cell(private val textValue: Char) {
     override fun toString(): String = textValue.toString()
 }
 
+enum class Move(val x: Int, val y: Int) {
+    UP(0, 1),
+    LEFT(-1, 0),
+    RIGHT(1, 0),
+    DOWN(0, -1);
+}
+
 interface ModelChangeListener {
     fun onModelChanged()
 }
 
-class Model {
-    private lateinit var playerPosition: Pair<Int, Int>
-    private var height = 0
-    private var length = 0
-    private var map = readMap().toMutableMap()
+class Model(_height: Int, _length: Int, _map: Map<Pair<Int, Int>, Cell>) {
+    private var playerPosition = _map.filterValues { it == PLAYER }.keys.first()
+    private var height = _height
+    private var length = _length
+    private var map = _map.toMutableMap()
     var state: State = GAME_NOT_FINISHED
     private val listeners: MutableSet<ModelChangeListener> = mutableSetOf()
 
@@ -38,200 +44,28 @@ class Model {
         listeners.remove(listener)
     }
 
-    fun doMove(move: Int) {
-        val x = playerPosition.first
-        val y = playerPosition.second
-        when (move) {
-            65 -> {
-                if (x - 1 < 0) {
-                    error("You can not left the field")
+    fun doMove(move: Move) {
+        val x = playerPosition.first + move.x
+        val y = playerPosition.second + move.y
+        if ((x < 0) || (y < 0)) {
+            error("You can not left the field")
+        } else {
+            if (map[Pair(x, y)] == WALL) {
+                error("You can not move through the wall")
+            } else {
+                if (checkWin(x, y)) {
+                    map[Pair(playerPosition.first, playerPosition.second)] = EMPTY
+                    map[Pair(x, y)] = PLAYER
+                    playerPosition = Pair(x, y)
+                    state = GAME_FINISHED
+                    notifyListeners()
+                    printMap()
                 } else {
-                    if (map[Pair(x - 1, y)] == WALL) {
-                        error("You can not move through the wall")
-                    } else {
-                        if (checkWin(x - 1, y)) {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x - 1, y)] = PLAYER
-                            playerPosition = Pair(x - 1, y)
-                            state = GAME_FINISHED
-                            notifyListeners()
-                            printMap()
-                        } else {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x - 1, y)] = PLAYER
-                            playerPosition = Pair(x - 1, y)
-                            notifyListeners()
-                            printMap()
-                        }
-                    }
-                }
-            }
-            97 -> {
-                if (x - 1 < 0) {
-                    error("You can not left the field")
-                } else {
-                    if (map[Pair(x - 1, y)] == WALL) {
-                        error("You can not move through the wall")
-                    } else {
-                        if (checkWin(x - 1, y)) {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x - 1, y)] = PLAYER
-                            playerPosition = Pair(x - 1, y)
-                            state = GAME_FINISHED
-                            notifyListeners()
-                            printMap()
-                        } else {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x - 1, y)] = PLAYER
-                            playerPosition = Pair(x - 1, y)
-                            notifyListeners()
-                            printMap()
-                        }
-                    }
-                }
-            }
-            68 -> {
-                if (x + 1 >= length) {
-                    error("You can not left the field")
-                } else {
-                    if (map[Pair(x + 1, y)] == WALL) {
-                        error("You can not move through the wall")
-                    } else {
-                        if (checkWin(x + 1, y)) {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x + 1, y)] = PLAYER
-                            playerPosition = Pair(x + 1, y)
-                            state = GAME_FINISHED
-                            notifyListeners()
-                            printMap()
-                        } else {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x + 1, y)] = PLAYER
-                            playerPosition = Pair(x + 1, y)
-                            notifyListeners()
-                            printMap()
-                        }
-                    }
-                }
-            }
-            100 -> {
-                if (x + 1 >= length) {
-                    error("You can not left the field")
-                } else {
-                    if (map[Pair(x + 1, y)] == WALL) {
-                        error("You can not move through the wall")
-                    } else {
-                        if (checkWin(x + 1, y)) {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x + 1, y)] = PLAYER
-                            playerPosition = Pair(x + 1, y)
-                            state = GAME_FINISHED
-                            notifyListeners()
-                            printMap()
-                        } else {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x + 1, y)] = PLAYER
-                            playerPosition = Pair(x + 1, y)
-                            notifyListeners()
-                            printMap()
-                        }
-                    }
-                }
-            }
-            87 -> {
-                if (y - 1 < 0) {
-                    error("You can not left the field")
-                } else {
-                    if (map[Pair(x, y - 1)] == WALL) {
-                        error("You can not move through the wall")
-                    } else {
-                        if (checkWin(x, y - 1)) {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x, y - 1)] = PLAYER
-                            playerPosition = Pair(x, y - 1)
-                            state = GAME_FINISHED
-                            notifyListeners()
-                            printMap()
-                        } else {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x, y - 1)] = PLAYER
-                            playerPosition = Pair(x, y - 1)
-                            notifyListeners()
-                            printMap()
-                        }
-                    }
-                }
-            }
-            119 -> {
-                if (y - 1 < 0) {
-                    error("You can not left the field")
-                } else {
-                    if (map[Pair(x, y - 1)] == WALL) {
-                        error("You can not move through the wall")
-                    } else {
-                        if (checkWin(x, y - 1)) {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x, y - 1)] = PLAYER
-                            playerPosition = Pair(x, y - 1)
-                            state = GAME_FINISHED
-                            notifyListeners()
-                            printMap()
-                        } else {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x, y - 1)] = PLAYER
-                            playerPosition = Pair(x, y - 1)
-                            notifyListeners()
-                            printMap()
-                        }
-                    }
-                }
-            }
-            83 -> {
-                if (y + 1 > height) {
-                    error("You can not left the field")
-                } else {
-                    if (map[Pair(x, y + 1)] == WALL) {
-                        error("You can not move through the wall")
-                    } else {
-                        if (checkWin(x, y + 1)) {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x, y + 1)] = PLAYER
-                            playerPosition = Pair(x, y + 1)
-                            state = GAME_FINISHED
-                            notifyListeners()
-                            printMap()
-                        } else {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x, y + 1)] = PLAYER
-                            playerPosition = Pair(x, y + 1)
-                            notifyListeners()
-                            printMap()
-                        }
-                    }
-                }
-            }
-            115 -> {
-                if (y + 1 > height) {
-                    error("You can not left the field")
-                } else {
-                    if (map[Pair(x, y + 1)] == WALL) {
-                        error("You can not move through the wall")
-                    } else {
-                        if (checkWin(x, y + 1)) {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x, y + 1)] = PLAYER
-                            playerPosition = Pair(x, y + 1)
-                            state = GAME_FINISHED
-                            notifyListeners()
-                            printMap()
-                        } else {
-                            map[Pair(x, y)] = EMPTY
-                            map[Pair(x, y + 1)] = PLAYER
-                            playerPosition = Pair(x, y + 1)
-                            notifyListeners()
-                            printMap()
-                        }
-                    }
+                    map[Pair(playerPosition.first, playerPosition.second)] = EMPTY
+                    map[Pair(x, y)] = PLAYER
+                    playerPosition = Pair(x, y)
+                    notifyListeners()
+                    printMap()
                 }
             }
         }
@@ -243,29 +77,6 @@ class Model {
 
     private fun notifyListeners() {
         listeners.forEach { it.onModelChanged() }
-    }
-
-    private fun readMap(): Map<Pair<Int, Int>, Cell> {
-        val file = File("labyrinth.txt")
-        val list = file.readLines()
-        val map = mutableMapOf<Pair<Int, Int>, Cell>()
-        length = list.component1().length
-        height = list.lastIndex
-        for (y in 0..height) {
-            for (x in 0 until length) {
-                map[Pair(x, y)] = when (list[y][x]) {
-                    '#' -> WALL
-                    '-' -> EMPTY
-                    'P' -> PLAYER
-                    'E' -> EXIT
-                    else -> WALL
-                }
-                if (list[y][x] == 'P') {
-                    playerPosition = Pair(x, y)
-                }
-            }
-        }
-        return map
     }
 
     fun printMap() {
