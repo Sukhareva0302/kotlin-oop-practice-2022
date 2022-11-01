@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm") version "1.6.10"
     application
@@ -14,6 +13,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("com.google.code.gson:gson:2.9.1")
 }
 
 tasks.test {
